@@ -10,7 +10,6 @@ use rustc_serialize::base64::{ToBase64, FromBase64, URL_SAFE};
 // We're OK with a 128-bit security level, but use 256 bits just in case.
 const TOKEN_LENGTH: usize = 32;
 
-// TODO: Cow
 fn get_hash(key: &[u8], msg: &[u8]) -> Vec<u8> {
 	let mut hash = Blake2b::with_key(TOKEN_LENGTH, key);
 	hash.update(msg);
