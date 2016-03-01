@@ -37,7 +37,7 @@ pub fn get_signed_message(key: &[u8], token_b64: &str) -> Result<Vec<u8>, String
 	}
 	let token = token.unwrap();
 	if token.len() < TOKEN_LENGTH {
-		return Err(format!("token length {} < {}", token.len(), TOKEN_LENGTH));
+		return Err(format!("token {:?} is too short: length {} < {}", token_b64, token.len(), TOKEN_LENGTH));
 	}
 	let given_hash = &token[0..TOKEN_LENGTH];
 	let msg = &token[TOKEN_LENGTH..];
@@ -75,12 +75,33 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_make_check() {
+	fn test_make_get() {
 		let key = b"my secret key";
 		let message = b"my message";
 		let token = make_signed_token(key, message);
 		assert_eq!(token, "aIQhyq5oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl");
 		let result = get_signed_message(key, &token[..]);
 		assert_eq!(result, Ok(message.to_vec()));
+	}
+
+	#[test]
+	fn test_invalid_base64() {
+		let key = b"my secret key";
+		let result = get_signed_message(key, "not valid base64");
+		assert_eq!(result, Err(r#"token "not valid base64" is invalid base64"#.to_owned()));
+	}
+
+	#[test]
+	fn test_invalid_length() {
+		let key = b"my secret key";
+		let result = get_signed_message(key, "YmxhaA==");
+		assert_eq!(result, Err(r#"token "YmxhaA==" is too short: length 4 < 32"#.to_owned()));
+	}
+
+	#[test]
+	fn test_invalid_hash() {
+		let key = b"my secret key";
+		let result = get_signed_message(key, "aIQhyq4oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl");
+		assert_eq!(result, Err(r#"token "aIQhyq4oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl" has wrong hash"#.to_owned()));
 	}
 }
