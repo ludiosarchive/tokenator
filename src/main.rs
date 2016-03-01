@@ -134,4 +134,11 @@ mod tests {
 		let result = get_signed_message(key, "_a___TmZERkT5BpAstSXxLkIOsyJUNJnHU-d9SAfLxFteSBtZXNzYWdl");
 		assert_eq!(result, Err(r#"token "_a___TmZERkT5BpAstSXxLkIOsyJUNJnHU-d9SAfLxFteSBtZXNzYWdl" has wrong hash"#.to_owned()));
 	}
+
+	#[test]
+	#[should_panic]
+	fn test_key_too_long() {
+		let key = b"this key is over 64 bytes. this key is over 64 bytes. this key is over 64 bytes.";
+		let _ = get_signed_message(key, "_a___TmZERkT5BpAstSXxLkIOsyJUNJnHU-d9SAfLxFteSBtZXNzYWdl");
+	}
 }
