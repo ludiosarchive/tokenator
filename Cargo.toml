@@ -6,4 +6,5 @@ authors = ["Ivan Kozik <ivan@ludios.org>"]
 [dependencies]
 blake2-rfc = "*"
 rustc-serialize = "*"
+constant_time_eq = "*"
 dump = "*"
