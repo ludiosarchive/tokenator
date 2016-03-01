@@ -58,11 +58,6 @@ pub fn get_signed_message(key: &[u8], token_b64: &str) -> Result<Vec<u8>, String
 /// https://tools.ietf.org/html/rfc5297
 /// "SIV provides a level of resistance to nonce reuse and misuse.  If the nonce is never reused, then the usual notion of nonce-based security of an authenticated encryption mode is achieved.  If, however, the nonce is reused, authenticity is retained and confidentiality is only compromised to the extent that an attacker can determine that the same plaintext (and same associated data) was protected with the same nonce and key"
 
-// TODO: Use https://briansmith.org/rustdoc/ring/aead/index.html instead to
-// encrypt tokens as well as a defense-in-depth measure
-
-// TODO: make sure we don't have a timing attack
-
 pub fn main() {
 	blake2_rfc::blake2b::selftest();
 
@@ -82,8 +77,8 @@ mod tests {
 
 	#[test]
 	fn test_make_check() {
-		let key = "my secret key".as_bytes();
-		let message = "my message".as_bytes();
+		let key = b"my secret key";
+		let message = b"my message";
 		let token = make_signed_token(key, message);
 		assert_eq!(token, "aIQhyq5oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl");
 		let result = get_signed_message(key, &token[..]);
