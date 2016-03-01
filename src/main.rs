@@ -108,6 +108,10 @@ mod tests {
 		assert_eq!(token, "GgQPolDeTJJoctFgZvP-g7J53ddVROFBzpbc7ZAh7P5teSBtZXNzYWdlIHRoYXQgZ29lcyBhIGxpdHRsZSBwYXN0IDE2IGJ5dGVzIGJ1dCBpcyBzdGlsbCBub3QgdGhhdCBsb25n");
 		let result = get_signed_message(key, &token[..]);
 		assert_eq!(result, Ok(message.to_vec()));
+
+		// Won't work with the wrong key
+		let result = get_signed_message(b"wrong key", &token[..]);
+		assert!(result.is_err());
 	}
 
 	#[test]
