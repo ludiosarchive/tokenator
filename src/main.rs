@@ -70,9 +70,29 @@ mod tests {
 	use super::*;
 	use test::Bencher;
 
+	fn sign() {
+		let key = b"my secret key";
+		let message = b"my message";
+		let token = make_signed_token(key, message);
+		assert_eq!(token, "aIQhyq5oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl");
+	}
+
+	fn verify() {
+		let message = b"my message";
+		let key = b"my secret key";
+		let token = "aIQhyq5oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl";
+		let result = get_signed_message(key, &token[..]);
+		assert_eq!(result, Ok(message.to_vec()));
+	}
+
 	#[bench]
-	fn bench_add_two(b: &mut Bencher) {
-		b.iter(|| test_make_get());
+	fn bench_sign(b: &mut Bencher) {
+		b.iter(sign);
+	}
+
+	#[bench]
+	fn bench_verify(b: &mut Bencher) {
+		b.iter(verify);
 	}
 
 	#[test]
