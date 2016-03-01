@@ -1,8 +1,11 @@
+#![feature(test)]
+
 #[macro_use]
 extern crate dump;
 extern crate blake2_rfc;
 extern crate rustc_serialize;
 extern crate constant_time_eq;
+extern crate test;
 
 use blake2_rfc::blake2b::Blake2b;
 use rustc_serialize::base64::{ToBase64, FromBase64, URL_SAFE};
@@ -49,6 +52,7 @@ pub fn get_signed_message(key: &[u8], token_b64: &str) -> Result<Vec<u8>, String
 }
 
 // TODO: embed expiration into signed message outside the JSON layer?
+// Note: this will complicate testing; might need a mock clock
 
 /// Note: we don't encrypt the message because that would require us to never
 /// reuse a nonce, which is a little tricky to get 100% right.  In the future,
@@ -57,22 +61,24 @@ pub fn get_signed_message(key: &[u8], token_b64: &str) -> Result<Vec<u8>, String
 /// https://tools.ietf.org/html/rfc5297
 /// "SIV provides a level of resistance to nonce reuse and misuse.  If the nonce is never reused, then the usual notion of nonce-based security of an authenticated encryption mode is achieved.  If, however, the nonce is reused, authenticity is retained and confidentiality is only compromised to the extent that an attacker can determine that the same plaintext (and same associated data) was protected with the same nonce and key"
 
-pub fn main() {
+pub fn selftest() {
 	blake2_rfc::blake2b::selftest();
-
-	let message = "not secret token data blah asdf".as_bytes();
-
-	let secret = b"my secret key";
-	let token = make_signed_token(&secret[..], message);
-	dump!(token);
-
-	//let dec = b64.from_base64();
-
 }
 
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::Bencher;
+
+	#[bench]
+	fn bench_add_two(b: &mut Bencher) {
+		b.iter(|| test_make_get());
+	}
+
+	#[test]
+	fn test_selftest() {
+		selftest();
+	}
 
 	#[test]
 	fn test_make_get() {
