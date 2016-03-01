@@ -54,12 +54,12 @@ pub fn get_signed_message(key: &[u8], token_b64: &str) -> Result<Vec<u8>, String
 // TODO: embed expiration into signed message outside the JSON layer?
 // Note: this will complicate testing; might need a mock clock
 
-/// Note: we don't encrypt the message because that would require us to never
-/// reuse a nonce, which is a little tricky to get 100% right.  In the future,
-/// we might want to use a SIV AES mode to do this:
-/// https://eprint.iacr.org/2015/102.pdf
-/// https://tools.ietf.org/html/rfc5297
-/// "SIV provides a level of resistance to nonce reuse and misuse.  If the nonce is never reused, then the usual notion of nonce-based security of an authenticated encryption mode is achieved.  If, however, the nonce is reused, authenticity is retained and confidentiality is only compromised to the extent that an attacker can determine that the same plaintext (and same associated data) was protected with the same nonce and key"
+// Note: we don't encrypt the message because that would require us to never
+// reuse a nonce, which is a little tricky to get 100% right.  In the future,
+// we might want to use a SIV AES mode to do this:
+// https://eprint.iacr.org/2015/102.pdf
+// https://tools.ietf.org/html/rfc5297
+// "SIV provides a level of resistance to nonce reuse and misuse.  If the nonce is never reused, then the usual notion of nonce-based security of an authenticated encryption mode is achieved.  If, however, the nonce is reused, authenticity is retained and confidentiality is only compromised to the extent that an attacker can determine that the same plaintext (and same associated data) was protected with the same nonce and key"
 
 pub fn selftest() {
 	blake2_rfc::blake2b::selftest();
@@ -72,15 +72,15 @@ mod tests {
 
 	fn sign() {
 		let key = b"my secret key";
-		let message = b"my message";
+		let message = b"my message that goes a little past 16 bytes but is still not that long";
 		let token = make_signed_token(key, message);
-		assert_eq!(token, "aIQhyq5oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl");
+		assert_eq!(token, "GgQPolDeTJJoctFgZvP-g7J53ddVROFBzpbc7ZAh7P5teSBtZXNzYWdlIHRoYXQgZ29lcyBhIGxpdHRsZSBwYXN0IDE2IGJ5dGVzIGJ1dCBpcyBzdGlsbCBub3QgdGhhdCBsb25n");
 	}
 
 	fn verify() {
-		let message = b"my message";
+		let message = b"my message that goes a little past 16 bytes but is still not that long";
 		let key = b"my secret key";
-		let token = "aIQhyq5oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl";
+		let token = "GgQPolDeTJJoctFgZvP-g7J53ddVROFBzpbc7ZAh7P5teSBtZXNzYWdlIHRoYXQgZ29lcyBhIGxpdHRsZSBwYXN0IDE2IGJ5dGVzIGJ1dCBpcyBzdGlsbCBub3QgdGhhdCBsb25n";
 		let result = get_signed_message(key, &token[..]);
 		assert_eq!(result, Ok(message.to_vec()));
 	}
@@ -103,9 +103,9 @@ mod tests {
 	#[test]
 	fn test_make_get() {
 		let key = b"my secret key";
-		let message = b"my message";
+		let message = b"my message that goes a little past 16 bytes but is still not that long";
 		let token = make_signed_token(key, message);
-		assert_eq!(token, "aIQhyq5oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl");
+		assert_eq!(token, "GgQPolDeTJJoctFgZvP-g7J53ddVROFBzpbc7ZAh7P5teSBtZXNzYWdlIHRoYXQgZ29lcyBhIGxpdHRsZSBwYXN0IDE2IGJ5dGVzIGJ1dCBpcyBzdGlsbCBub3QgdGhhdCBsb25n");
 		let result = get_signed_message(key, &token[..]);
 		assert_eq!(result, Ok(message.to_vec()));
 	}
@@ -127,7 +127,7 @@ mod tests {
 	#[test]
 	fn test_invalid_hash() {
 		let key = b"my secret key";
-		let result = get_signed_message(key, "aIQhyq4oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl");
-		assert_eq!(result, Err(r#"token "aIQhyq4oVXY7ESI71JiIfyJ0_GKRRxRYsRM-trPdWgNteSBtZXNzYWdl" has wrong hash"#.to_owned()));
+		let result = get_signed_message(key, "_a___TmZERkT5BpAstSXxLkIOsyJUNJnHU-d9SAfLxFteSBtZXNzYWdl");
+		assert_eq!(result, Err(r#"token "_a___TmZERkT5BpAstSXxLkIOsyJUNJnHU-d9SAfLxFteSBtZXNzYWdl" has wrong hash"#.to_owned()));
 	}
 }
